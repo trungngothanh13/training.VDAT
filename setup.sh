@@ -6,9 +6,22 @@ set -e
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "=== 1. Installing system tools (unzip, tmux, libgl1) ==="
-if command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update -qq && sudo apt-get install -y -qq unzip tmux libgl1 libglib2.0-0
+echo "=== 1. Checking system tools (unzip, tmux, libgl1) ==="
+MISSING_PKGS=""
+command -v unzip >/dev/null 2>&1 || MISSING_PKGS="$MISSING_PKGS unzip"
+command -v tmux >/dev/null 2>&1 || MISSING_PKGS="$MISSING_PKGS tmux"
+ldconfig -p 2>/dev/null | grep -q "libGL.so.1" || MISSING_PKGS="$MISSING_PKGS libgl1"
+ldconfig -p 2>/dev/null | grep -q "libglib-2.0.so.0" || MISSING_PKGS="$MISSING_PKGS libglib2.0-0"
+
+if [ -n "$MISSING_PKGS" ] && command -v apt-get >/dev/null 2>&1; then
+    echo "Installing missing system packages:$MISSING_PKGS"
+    sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get update
+    sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
+        $MISSING_PKGS
+else
+    echo "System tools already installed — skipping apt-get."
 fi
 
 echo "=== 2. Installing / upgrading Python dependencies ==="

@@ -22,11 +22,12 @@ bash download_dataset.sh "https://app.roboflow.com/ds/YOUR_EXPORT_LINK"
 ```
 This downloads into `./dataset/` and automatically fixes `dataset/data.yaml` paths.
 
-## 4. Train YOLO26l Inside `tmux`
+## 4. Train YOLO26l in Background (Survives SSH Disconnect)
 ```bash
-tmux new -s train
-python train.py
+nohup python -u train.py > train.log 2>&1 &
+tail -f train.log
 ```
+*(Or inside `tmux new -s train` if `tmux` is installed. Press `Ctrl+C` on `tail -f` anytime — training keeps running in the background.)*
 Optional overrides:
 ```bash
 python train.py --epochs 100 --batch 16 --imgsz 864

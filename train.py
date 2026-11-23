@@ -12,6 +12,7 @@ import json
 import shutil
 import time
 from pathlib import Path
+import torch
 from ultralytics import YOLO
 
 from model_utils import (
@@ -21,6 +22,20 @@ from model_utils import (
     parse_names_dict,
     resolve_data_yaml,
 )
+
+
+def recommend_batch_size(device: str) -> int:
+    """Pick optimal power-of-2 batch size based on available GPU VRAM."""
+    if device == "cpu" or not torch.cuda.is_available():
+        return 8
+    vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+    if vram_gb >= 70:
+        return 64  # A100 80GB / H100: matches nbs=64 cleanly, saturates Tensor Cores
+    if vram_gb >= 40:
+        return 32  # RTX A6000 / L40 48GB
+    if vram_gb >= 20:
+        return 16  # 24GB GPUs (3090 / 4090 / L4)
+    return 8
 
 
 def count_images(ds_root: Path, rel_path: str) -> int:
@@ -37,11 +52,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train custom YOLO26 model for VDAT on ThunderCompute")
     parser.add_argument("--model", type=str, default="yolo26l.pt", help="Base YOLO26 weights (default: yolo26l.pt)")
     parser.add_argument("--data", type=str, default=None, help="Path to data.yaml (default: auto-detect dataset/data.yaml or ./data.yaml)")
-    parser.add_argument("--epochs", type=int, default=80, help="Number of training epochs (default: 80)")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs (default: 100)")
     parser.add_argument("--imgsz", type=int, default=864, help="Training image size matching VDAT stream (default: 864)")
-    parser.add_argument("--batch", type=int, default=16, help="Batch size (-1 for auto; default: 16 for A6000)")
+    parser.add_argument("--batch", type=int, default=None, help="Batch size (default: auto by VRAM — 64 on A100 80GB, 32 on 48GB)")
     parser.add_argument("--workers", type=int, default=8, help="Dataloader worker threads (default: 8)")
-    parser.add_argument("--patience", type=int, default=20, help="Early stopping patience in epochs (default: 20)")
+    parser.add_argument("--patience", type=int, default=25, help="Early stopping patience in epochs (default: 25)")
+    parser.add_argument("--close-mosaic", type=int, default=15, help="Disable mosaic for final N epochs to tighten boxes (default: 15)")
     parser.add_argument("--cache", type=str, default="ram", choices=["ram", "disk", "none"], help="Dataset cache mode (default: ram)")
     parser.add_argument("--name", type=str, default="vdat_yolo26l", help="Run name under ./runs/detect/")
     parser.add_argument("--project", type=str, default=str(ROOT_DIR / "runs" / "detect"), help="Output runs project dir")
@@ -57,6 +73,13 @@ def main():
 
     auto_device, device_desc = get_device_info()
     device = args.device if args.device is not None else auto_device
+    batch_size = args.batch if args.batch is not None else recommend_batch_size(device)
+
+    # Enable TF32 + cuDNN autotuning on Ampere/Hopper GPUs (A100/H100/A6000) for maximum throughput
+    if device != "cpu" and torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.backends.cudnn.benchmark = True
 
     found_yaml = resolve_data_yaml(args.data)
     if found_yaml is None:
@@ -73,14 +96,17 @@ def main():
     test_n = count_images(ds_root, cfg.get("test", ""))
 
     print("=" * 68)
-    print("VDAT YOLO26 Training Pipeline")
+    print("VDAT YOLO26 Training Pipeline (High-Throughput Good-Weather Profile)")
     print("=" * 68)
     print(f"Device:         {device_desc} (arg={device})")
     print(f"Base Model:     {args.model}")
     print(f"Dataset YAML:   {data_yaml}")
     print(f"Classes ({len(names)}):   {names}")
     print(f"Split Counts:   train={train_n}, val={val_n}, test={test_n}")
-    print(f"Hyperparams:    epochs={args.epochs}, imgsz={args.imgsz}, batch={args.batch}, patience={args.patience}, cache={args.cache}")
+    print(
+        f"Hyperparams:    epochs={args.epochs}, imgsz={args.imgsz}, batch={batch_size}, "
+        f"patience={args.patience}, close_mosaic={args.close_mosaic}, cache={args.cache}"
+    )
     print("=" * 68)
 
     if train_n == 0:
@@ -105,13 +131,24 @@ def main():
             data=str(data_yaml),
             epochs=args.epochs,
             imgsz=args.imgsz,
-            batch=args.batch,
+            batch=batch_size,
             device=device,
             workers=args.workers,
             patience=args.patience,
             cache=cache_val,
+            amp=True,
+            deterministic=False,  # unlocks cuDNN autotuner on A100/H100
             cos_lr=args.cos_lr,
             lr0=args.lr0,
+            close_mosaic=args.close_mosaic,
+            # Good-weather traffic calibration: sharp small-object tracking, zero upside-down flips
+            scale=0.6,      # wider scale invariance for distant vs close intersections
+            fliplr=0.5,
+            flipud=0.0,
+            hsv_h=0.01,     # gentler daylight hue/sat/val jitter than COCO default
+            hsv_s=0.4,
+            hsv_v=0.25,
+            erasing=0.1,    # reduced from 0.4 so small distant motorcycles aren't wiped out
             project=args.project,
             name=args.name,
             exist_ok=True,
@@ -143,7 +180,8 @@ def main():
         "elapsed_minutes": round(elapsed_min, 2),
         "epochs_configured": args.epochs,
         "imgsz": args.imgsz,
-        "batch": args.batch,
+        "batch": batch_size,
+        "close_mosaic": args.close_mosaic,
         "classes": names,
         "splits": {"train": train_n, "val": val_n, "test": test_n},
         "validation": {},

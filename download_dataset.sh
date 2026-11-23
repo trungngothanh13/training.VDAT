@@ -39,7 +39,7 @@ else
     mkdir -p "$DATASET_DIR"
     echo "=== Downloading Roboflow dataset into $DATASET_DIR ==="
     curl -L "$URL" -o "$DATASET_DIR/roboflow.zip"
-    unzip -q "$DATASET_DIR/roboflow.zip" -d "$DATASET_DIR"
+    unzip -qo "$DATASET_DIR/roboflow.zip" -d "$DATASET_DIR"
     rm -f "$DATASET_DIR/roboflow.zip"
 fi
 

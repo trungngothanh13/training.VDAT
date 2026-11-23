@@ -1,0 +1,27 @@
+# Datasets & Downloads (never commit large datasets or Roboflow credentials)
+dataset/
+datasets/
+train/
+valid/
+test/
+data.yaml
+README.dataset.txt
+README.roboflow.txt
+*.zip
+.env
+
+# Training runs, checkpoints, and generated reports
+runs/
+weights/
+reports/
+*.pt
+*.onnx
+*.engine
+
+# Python & Virtualenvs
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store

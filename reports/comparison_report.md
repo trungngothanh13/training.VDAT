@@ -1,66 +1,74 @@
 # VDAT Model Comparison Report: Stock YOLO26 vs Custom Trained YOLO26
 
-- **Generated:** 2026-11-23 12:29:23
+- **Generated:** 2026-11-23 16:54:45
 - **Hardware:** `CUDA: NVIDIA A100-SXM4-80GB (85.1 GB VRAM)` (`precision={'quantize': 16}`)
 - **Stock Model:** `yolo26l.pt` (Vehicle filter: `True`)
 - **Trained Model:** `/home/ubuntu/training.VDAT/weights/best.pt`
-- **Trained Classes:** `{0: 'motorcycle'}`
+- **Trained Classes:** `{0: 'bicycle', 1: 'bus', 2: 'car', 3: 'motorcycle', 4: 'truck'}`
 - **Evaluation Settings:** `imgsz=864`, `conf=0.3`
 
 ## 1. Ground-Truth Dataset Benchmark (Class-Name-Aligned)
 
 > Both models are evaluated on the exact same labeled images with canonical class-name alignment (e.g. COCO `motorcycle` ↔ dataset `motorcycle`) so Stock YOLO26 and Trained YOLO26 are compared apples-to-apples.
 
-### Split: `test` (65 images, 174 ground-truth boxes)
+### Split: `test` (64 images, 603 ground-truth boxes)
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ (Trained − Stock) |
 | :--- | ---: | ---: | ---: |
-| **mAP@50** | 87.88% | **95.27%** | +7.39% |
-| **mAP@50-95** | 56.76% | **79.91%** | +23.15% |
-| **Precision (conf≥0.3)** | 76.06% | **81.28%** | +5.22% |
-| **Recall (conf≥0.3)** | 93.10% | **94.83%** | +1.72% |
-| **F1-Score** | 83.72% | **87.53%** | +3.81% |
-| **True Positives (TP)** | 162 | 165 | +3 |
-| **False Positives (FP)** | 51 | 38 | -13 |
-| **False Negatives (FN / Missed)** | 12 | 9 | -3 |
-| **Mean Matched IoU** | 0.825 | 0.891 | +0.066 |
-| **Mean Confidence** | 0.650 | 0.859 | +0.209 |
-| **Avg Inference Time** | 95.13 ms | 32.95 ms | -62.19 ms |
+| **mAP@50** | 66.11% | **89.37%** | +23.26% |
+| **mAP@50-95** | 51.36% | **70.69%** | +19.33% |
+| **Precision (conf≥0.3)** | 90.35% | **88.20%** | -2.15% |
+| **Recall (conf≥0.3)** | 55.89% | **91.71%** | +35.82% |
+| **F1-Score** | 69.06% | **89.92%** | +20.86% |
+| **True Positives (TP)** | 337 | 553 | +216 |
+| **False Positives (FP)** | 36 | 74 | +38 |
+| **False Negatives (FN / Missed)** | 266 | 50 | -216 |
+| **Mean Matched IoU** | 0.873 | 0.861 | -0.012 |
+| **Mean Confidence** | 0.659 | 0.802 | +0.142 |
+| **Avg Inference Time** | 55.28 ms | 17.46 ms | -37.82 ms |
 
 #### Per-Class Breakdown (`test`)
 
 | Class | GT | Stock P / R / F1 / AP@50 | Trained P / R / F1 / AP@50 | AP@50 Δ |
 | :--- | ---: | ---: | ---: | ---: |
-| `motorcycle` | 174 | 76.1% / 93.1% / 83.7% / 87.9% | **81.3% / 94.8% / 87.5% / 95.3%** | +7.39% |
+| `bicycle` | 12 | 83.3% / 41.7% / 55.6% / 63.1% | **90.0% / 75.0% / 81.8% / 86.3%** | +23.24% |
+| `bus` | 21 | 66.7% / 38.1% / 48.5% / 54.3% | **85.7% / 85.7% / 85.7% / 89.6%** | +35.36% |
+| `car` | 205 | 95.7% / 53.7% / 68.8% / 86.7% | **91.0% / 93.2% / 92.0% / 95.0%** | +8.24% |
+| `motorcycle` | 340 | 93.6% / 60.0% / 73.1% / 82.4% | **87.5% / 92.6% / 90.0% / 94.8%** | +12.33% |
+| `truck` | 25 | 45.5% / 40.0% / 42.6% / 44.1% | **76.9% / 80.0% / 78.4% / 81.2%** | +37.12% |
 
-### Split: `val` (291 images, 884 ground-truth boxes)
+### Split: `val` (259 images, 2830 ground-truth boxes)
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ (Trained − Stock) |
 | :--- | ---: | ---: | ---: |
-| **mAP@50** | 80.10% | **90.94%** | +10.84% |
-| **mAP@50-95** | 49.90% | **72.25%** | +22.35% |
-| **Precision (conf≥0.3)** | 69.86% | **79.40%** | +9.54% |
-| **Recall (conf≥0.3)** | 79.19% | **89.82%** | +10.63% |
-| **F1-Score** | 74.23% | **84.29%** | +10.06% |
-| **True Positives (TP)** | 700 | 794 | +94 |
-| **False Positives (FP)** | 302 | 206 | -96 |
-| **False Negatives (FN / Missed)** | 184 | 90 | -94 |
-| **Mean Matched IoU** | 0.810 | 0.871 | +0.061 |
-| **Mean Confidence** | 0.628 | 0.820 | +0.192 |
-| **Avg Inference Time** | 39.43 ms | 27.00 ms | -12.43 ms |
+| **mAP@50** | 71.07% | **83.10%** | +12.03% |
+| **mAP@50-95** | 54.59% | **66.13%** | +11.54% |
+| **Precision (conf≥0.3)** | 88.13% | **86.31%** | -1.82% |
+| **Recall (conf≥0.3)** | 54.03% | **88.45%** | +34.42% |
+| **F1-Score** | 66.99% | **87.36%** | +20.38% |
+| **True Positives (TP)** | 1529 | 2503 | +974 |
+| **False Positives (FP)** | 206 | 397 | +191 |
+| **False Negatives (FN / Missed)** | 1301 | 327 | -974 |
+| **Mean Matched IoU** | 0.878 | 0.865 | -0.013 |
+| **Mean Confidence** | 0.661 | 0.803 | +0.142 |
+| **Avg Inference Time** | 33.39 ms | 20.38 ms | -13.00 ms |
 
 #### Per-Class Breakdown (`val`)
 
 | Class | GT | Stock P / R / F1 / AP@50 | Trained P / R / F1 / AP@50 | AP@50 Δ |
 | :--- | ---: | ---: | ---: | ---: |
-| `motorcycle` | 884 | 69.9% / 79.2% / 74.2% / 80.1% | **79.4% / 89.8% / 84.3% / 90.9%** | +10.84% |
+| `bicycle` | 53 | 65.2% / 56.6% / 60.6% / 58.5% | **65.2% / 56.6% / 60.6% / 67.2%** | +8.77% |
+| `bus` | 67 | 79.6% / 64.2% / 71.1% / 78.1% | **70.2% / 88.1% / 78.1% / 84.3%** | +6.21% |
+| `car` | 952 | 92.6% / 56.9% / 70.5% / 81.8% | **89.6% / 85.9% / 87.7% / 91.7%** | +9.87% |
+| `motorcycle` | 1619 | 91.3% / 51.7% / 66.0% / 77.5% | **86.7% / 92.4% / 89.4% / 93.7%** | +16.17% |
+| `truck` | 139 | 57.9% / 55.4% / 56.6% / 59.5% | **76.3% / 71.9% / 74.1% / 78.6%** | +19.12% |
 
 ### Official Ultralytics `model.val()` Summary (Trained Model)
 
 | Split | Precision | Recall | mAP@50 | mAP@50-95 |
 | :--- | ---: | ---: | ---: | ---: |
-| `test` | 92.92% | 93.10% | **96.56%** | **77.65%** |
-| `val` | 85.73% | 87.70% | **93.02%** | **69.66%** |
+| `test` | 85.69% | 83.93% | **89.38%** | **68.67%** |
+| `val` | 82.51% | 77.56% | **82.67%** | **63.46%** |
 
 ## 2. Real Traffic Video Benchmark
 
@@ -68,97 +76,97 @@
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ (Trained − Stock) |
 | :--- | ---: | ---: | ---: |
-| **Total Detections** | 4811 | **1110** | -3701 |
-| **Avg Detections / Frame** | 26.73 | **6.17** | -20.56 |
-| **High-Confidence Detections (≥0.50)** | 2792 | **917** | -1875 |
-| **Small Objects (<32×32 px)** | 1700 | **309** | -1391 |
-| **Mean Confidence** | 0.561 | **0.689** | +0.128 |
-| **Avg Latency (ms/frame)** | 31.57 ms | **28.21 ms** | -3.36 ms |
-| **Throughput (FPS)** | 31.7 FPS | **35.4 FPS** | +3.8 FPS |
-| **Agreement (IoU≥0.50)** | Matched Both: **728** | Only Trained: **382** | Only Stock: **4083** |
+| **Total Detections** | 4811 | **9666** | +4855 |
+| **Avg Detections / Frame** | 26.73 | **53.70** | +26.97 |
+| **High-Confidence Detections (≥0.50)** | 2792 | **8328** | +5536 |
+| **Small Objects (<32×32 px)** | 1700 | **5246** | +3546 |
+| **Mean Confidence** | 0.561 | **0.738** | +0.177 |
+| **Avg Latency (ms/frame)** | 23.59 ms | **20.52 ms** | -3.07 ms |
+| **Throughput (FPS)** | 42.4 FPS | **48.7 FPS** | +6.3 FPS |
+| **Agreement (IoU≥0.50)** | Matched Both: **4243** | Only Trained: **5423** | Only Stock: **568** |
 
 ### Video: `test_1.mp4` (854x480 @ 30.0 FPS, 60 sampled / 10852 total frames)
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ |
 | :--- | ---: | ---: | ---: |
-| Total Detections | 1738 | **352** | -1386 |
-| Avg / Max per Frame | 28.97 / 39 | **5.87 / 16** | -23.10 |
-| Confidence (Mean / Median / P95) | 0.573 / 0.557 / 0.879 | **0.693 / 0.768 / 0.853** | +0.120 |
-| High-Conf Detections (≥0.50) | 1056 | **296** | -760 |
-| Size Breakdown (Small / Med / Large) | 431 / 1165 / 142 | **99 / 253 / 0** | Small: -332 |
-| Latency (Mean / P95) & FPS | 32.67 / 39.32 ms (30.6 FPS) | **29.42 / 36.11 ms (34.0 FPS)** | -3.25 ms |
-| Box Agreement (IoU≥0.50) | Matched: 223 (IoU 0.673) | Only Trained: 129 | Only Stock: 1515 |
+| Total Detections | 1738 | **3618** | +1880 |
+| Avg / Max per Frame | 28.97 / 39 | **60.30 / 81** | +31.33 |
+| Confidence (Mean / Median / P95) | 0.573 / 0.557 / 0.879 | **0.756 / 0.826 / 0.939** | +0.184 |
+| High-Conf Detections (≥0.50) | 1056 | **3166** | +2110 |
+| Size Breakdown (Small / Med / Large) | 431 / 1165 / 142 | **1780 / 1697 / 141** | Small: +1349 |
+| Latency (Mean / P95) & FPS | 23.98 / 33.70 ms (41.7 FPS) | **20.26 / 26.50 ms (49.4 FPS)** | -3.72 ms |
+| Box Agreement (IoU≥0.50) | Matched: 1561 (IoU 0.864) | Only Trained: 2057 | Only Stock: 177 |
 
 | Class (Canonical) | Stock Count | Trained Count | Δ |
 | :--- | ---: | ---: | ---: |
-| `bicycle` | 2 | **0** | -2 |
-| `bus` | 99 | **0** | -99 |
-| `car` | 879 | **0** | -879 |
-| `motorcycle` | 543 | **352** | -191 |
-| `truck` | 215 | **0** | -215 |
+| `bicycle` | 2 | **7** | +5 |
+| `bus` | 99 | **119** | +20 |
+| `car` | 879 | **1865** | +986 |
+| `motorcycle` | 543 | **1547** | +1004 |
+| `truck` | 215 | **80** | -135 |
 
 #### Saved Side-by-Side Snapshots
 
-- **max_gain** (Frame `7908` — Stock: 20 vs Trained: 8): `frames/test_1_max_gain_f7908.jpg`
-  ![test_1.mp4 max_gain frame 7908](frames/test_1_max_gain_f7908.jpg)
-- **densest_traffic** (Frame `919` — Stock: 39 vs Trained: 16): `frames/test_1_densest_traffic_f919.jpg`
-  ![test_1.mp4 densest_traffic frame 919](frames/test_1_densest_traffic_f919.jpg)
-- **midpoint** (Frame `5517` — Stock: 26 vs Trained: 8): `frames/test_1_midpoint_f5517.jpg`
+- **max_gain** (Frame `0` — Stock: 32 vs Trained: 81): `frames/test_1_max_gain_f0.jpg`
+  ![test_1.mp4 max_gain frame 0](frames/test_1_max_gain_f0.jpg)
+- **midpoint** (Frame `5517` — Stock: 26 vs Trained: 49): `frames/test_1_midpoint_f5517.jpg`
   ![test_1.mp4 midpoint frame 5517](frames/test_1_midpoint_f5517.jpg)
 
 ### Video: `test_2.mp4` (854x480 @ 30.0 FPS, 60 sampled / 8540 total frames)
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ |
 | :--- | ---: | ---: | ---: |
-| Total Detections | 1257 | **344** | -913 |
-| Avg / Max per Frame | 20.95 / 26 | **5.73 / 14** | -15.22 |
-| Confidence (Mean / Median / P95) | 0.528 / 0.496 / 0.816 | **0.687 / 0.737 / 0.880** | +0.159 |
-| High-Conf Detections (≥0.50) | 620 | **285** | -335 |
-| Size Breakdown (Small / Med / Large) | 737 / 516 / 4 | **102 / 242 / 0** | Small: -635 |
-| Latency (Mean / P95) & FPS | 31.42 / 38.06 ms (31.8 FPS) | **28.07 / 34.54 ms (35.6 FPS)** | -3.35 ms |
-| Box Agreement (IoU≥0.50) | Matched: 245 (IoU 0.731) | Only Trained: 99 | Only Stock: 1012 |
+| Total Detections | 1257 | **2568** | +1311 |
+| Avg / Max per Frame | 20.95 / 26 | **42.80 / 60** | +21.85 |
+| Confidence (Mean / Median / P95) | 0.528 / 0.496 / 0.816 | **0.703 / 0.768 / 0.897** | +0.175 |
+| High-Conf Detections (≥0.50) | 620 | **2100** | +1480 |
+| Size Breakdown (Small / Med / Large) | 737 / 516 / 4 | **1700 / 860 / 8** | Small: +963 |
+| Latency (Mean / P95) & FPS | 22.80 / 32.08 ms (43.9 FPS) | **20.08 / 25.18 ms (49.8 FPS)** | -2.72 ms |
+| Box Agreement (IoU≥0.50) | Matched: 1036 (IoU 0.808) | Only Trained: 1532 | Only Stock: 221 |
 
 | Class (Canonical) | Stock Count | Trained Count | Δ |
 | :--- | ---: | ---: | ---: |
-| `bus` | 8 | **0** | -8 |
-| `car` | 367 | **0** | -367 |
-| `motorcycle` | 801 | **344** | -457 |
-| `truck` | 81 | **0** | -81 |
+| `bicycle` | 0 | **10** | +10 |
+| `bus` | 8 | **13** | +5 |
+| `car` | 367 | **631** | +264 |
+| `motorcycle` | 801 | **1863** | +1062 |
+| `truck` | 81 | **51** | -30 |
 
 #### Saved Side-by-Side Snapshots
 
-- **max_gain** (Frame `6368` — Stock: 11 vs Trained: 4): `frames/test_2_max_gain_f6368.jpg`
-  ![test_2.mp4 max_gain frame 6368](frames/test_2_max_gain_f6368.jpg)
-- **densest_traffic** (Frame `7381` — Stock: 24 vs Trained: 14): `frames/test_2_densest_traffic_f7381.jpg`
-  ![test_2.mp4 densest_traffic frame 7381](frames/test_2_densest_traffic_f7381.jpg)
-- **midpoint** (Frame `4341` — Stock: 24 vs Trained: 4): `frames/test_2_midpoint_f4341.jpg`
+- **max_gain** (Frame `1157` — Stock: 20 vs Trained: 60): `frames/test_2_max_gain_f1157.jpg`
+  ![test_2.mp4 max_gain frame 1157](frames/test_2_max_gain_f1157.jpg)
+- **densest_traffic** (Frame `8104` — Stock: 25 vs Trained: 57): `frames/test_2_densest_traffic_f8104.jpg`
+  ![test_2.mp4 densest_traffic frame 8104](frames/test_2_densest_traffic_f8104.jpg)
+- **midpoint** (Frame `4341` — Stock: 24 vs Trained: 51): `frames/test_2_midpoint_f4341.jpg`
   ![test_2.mp4 midpoint frame 4341](frames/test_2_midpoint_f4341.jpg)
 
 ### Video: `test_3.mp4` (854x480 @ 30.0 FPS, 60 sampled / 2052 total frames)
 
 | Metric | Stock YOLO26 | Trained YOLO26 | Δ |
 | :--- | ---: | ---: | ---: |
-| Total Detections | 1816 | **414** | -1402 |
-| Avg / Max per Frame | 30.27 / 40 | **6.90 / 19** | -23.37 |
-| Confidence (Mean / Median / P95) | 0.581 / 0.568 / 0.882 | **0.686 / 0.761 / 0.856** | +0.105 |
-| High-Conf Detections (≥0.50) | 1116 | **336** | -780 |
-| Size Breakdown (Small / Med / Large) | 532 / 1187 / 97 | **108 / 306 / 0** | Small: -424 |
-| Latency (Mean / P95) & FPS | 30.63 / 37.99 ms (32.7 FPS) | **27.15 / 34.67 ms (36.8 FPS)** | -3.48 ms |
-| Box Agreement (IoU≥0.50) | Matched: 260 (IoU 0.669) | Only Trained: 154 | Only Stock: 1556 |
+| Total Detections | 1816 | **3480** | +1664 |
+| Avg / Max per Frame | 30.27 / 40 | **58.00 / 71** | +27.73 |
+| Confidence (Mean / Median / P95) | 0.581 / 0.568 / 0.882 | **0.754 / 0.821 / 0.934** | +0.173 |
+| High-Conf Detections (≥0.50) | 1116 | **3062** | +1946 |
+| Size Breakdown (Small / Med / Large) | 532 / 1187 / 97 | **1766 / 1611 / 103** | Small: +1234 |
+| Latency (Mean / P95) & FPS | 23.98 / 29.59 ms (41.7 FPS) | **21.22 / 26.63 ms (47.1 FPS)** | -2.76 ms |
+| Box Agreement (IoU≥0.50) | Matched: 1646 (IoU 0.846) | Only Trained: 1834 | Only Stock: 170 |
 
 | Class (Canonical) | Stock Count | Trained Count | Δ |
 | :--- | ---: | ---: | ---: |
-| `bus` | 152 | **0** | -152 |
-| `car` | 791 | **0** | -791 |
-| `motorcycle` | 647 | **414** | -233 |
-| `truck` | 226 | **0** | -226 |
+| `bicycle` | 0 | **1** | +1 |
+| `bus` | 152 | **169** | +17 |
+| `car` | 791 | **1570** | +779 |
+| `motorcycle` | 647 | **1689** | +1042 |
+| `truck` | 226 | **51** | -175 |
 
 #### Saved Side-by-Side Snapshots
 
-- **max_gain** (Frame `730` — Stock: 29 vs Trained: 19): `frames/test_3_max_gain_f730.jpg`
-  ![test_3.mp4 max_gain frame 730](frames/test_3_max_gain_f730.jpg)
-- **densest_traffic** (Frame `695` — Stock: 34 vs Trained: 15): `frames/test_3_densest_traffic_f695.jpg`
-  ![test_3.mp4 densest_traffic frame 695](frames/test_3_densest_traffic_f695.jpg)
-- **midpoint** (Frame `1042` — Stock: 27 vs Trained: 5): `frames/test_3_midpoint_f1042.jpg`
+- **max_gain** (Frame `799` — Stock: 27 vs Trained: 66): `frames/test_3_max_gain_f799.jpg`
+  ![test_3.mp4 max_gain frame 799](frames/test_3_max_gain_f799.jpg)
+- **densest_traffic** (Frame `869` — Stock: 32 vs Trained: 71): `frames/test_3_densest_traffic_f869.jpg`
+  ![test_3.mp4 densest_traffic frame 869](frames/test_3_densest_traffic_f869.jpg)
+- **midpoint** (Frame `1042` — Stock: 27 vs Trained: 56): `frames/test_3_midpoint_f1042.jpg`
   ![test_3.mp4 midpoint frame 1042](frames/test_3_midpoint_f1042.jpg)
 

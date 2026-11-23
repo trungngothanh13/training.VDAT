@@ -3,32 +3,37 @@
   "trained_weights": "/home/ubuntu/training.VDAT/weights/best.pt",
   "run_dir": "/home/ubuntu/training.VDAT/runs/detect/vdat_yolo26l",
   "device": "CUDA: NVIDIA A100-SXM4-80GB (85.1 GB VRAM)",
-  "elapsed_minutes": 87.94,
-  "epochs_configured": 80,
+  "elapsed_minutes": 54.13,
+  "epochs_configured": 100,
   "imgsz": 864,
-  "batch": 16,
+  "batch": 64,
+  "close_mosaic": 15,
   "classes": {
-    "0": "motorcycle"
+    "0": "bicycle",
+    "1": "bus",
+    "2": "car",
+    "3": "motorcycle",
+    "4": "truck"
   },
   "splits": {
-    "train": 3783,
-    "val": 291,
-    "test": 65
+    "train": 2586,
+    "val": 259,
+    "test": 64
   },
   "validation": {
     "val": {
-      "images": 291,
-      "precision": 0.8573,
-      "recall": 0.877,
-      "mAP50": 0.9302,
-      "mAP50_95": 0.6966
+      "images": 259,
+      "precision": 0.825,
+      "recall": 0.7756,
+      "mAP50": 0.8266,
+      "mAP50_95": 0.6348
     },
     "test": {
-      "images": 65,
-      "precision": 0.9292,
-      "recall": 0.931,
-      "mAP50": 0.9656,
-      "mAP50_95": 0.7765
+      "images": 64,
+      "precision": 0.8569,
+      "recall": 0.8393,
+      "mAP50": 0.8938,
+      "mAP50_95": 0.6867
     }
   }
 }

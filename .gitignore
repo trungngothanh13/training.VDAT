@@ -1,4 +1,4 @@
-# Datasets & Downloads (never commit large datasets or Roboflow credentials)
+# Datasets & Downloads (keep untracked; re-download locally anytime with download_dataset.sh)
 dataset/
 datasets/
 train/
@@ -10,13 +10,31 @@ README.roboflow.txt
 *.zip
 .env
 
-# Training runs, checkpoints, and generated reports
-runs/
-weights/
-reports/
+# Ignore raw model binaries by default (prevents pushing stock yolo26l.pt or huge optimizer last.pt)
 *.pt
 *.onnx
 *.engine
+
+# Allow ONLY the trained best checkpoint & training summary inside weights/
+weights/*
+!weights/best.pt
+!weights/training_summary.json
+
+# Keep evaluation reports (comparison_report.md, metrics JSON, side-by-side PNG frames/snapshots)
+# reports/ is intentionally tracked!
+
+# Inside runs/, track ONLY plots, CSV logs, and args.yaml (ignore duplicate weights/ & huge debug batches)
+runs/*
+!runs/detect/
+runs/detect/*
+!runs/detect/*/
+runs/detect/*/*
+!runs/detect/*/*.png
+!runs/detect/*/*.jpg
+!runs/detect/*/*.csv
+!runs/detect/*/*.yaml
+runs/detect/*/train_batch*.jpg
+runs/detect/*/val_batch*.jpg
 
 # Python & Virtualenvs
 .venv/
@@ -25,3 +43,4 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+nohup.out

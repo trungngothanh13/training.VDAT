@@ -90,7 +90,7 @@ def color_for_class(class_name: str, class_id: int = 0) -> Tuple[int, int, int]:
 
 
 def get_precision_kwargs(use_cuda: Optional[bool] = None) -> Dict[str, Any]:
-    """Returns FP16 kwargs compatible with Ultralytics 8.4+ (`quantize=16`) or older (`half=True`)."""
+    """Returns FP16 kwargs compatible with Ultralytics 8.4+ (`quantize=16`) or older (`half=True`), falling back to FP32 on GPUs prone to FP16 NaN overflow."""
     if use_cuda is None:
         try:
             import torch
@@ -99,6 +99,14 @@ def get_precision_kwargs(use_cuda: Optional[bool] = None) -> Dict[str, Any]:
             use_cuda = False
     if not use_cuda:
         return {}
+    try:
+        import torch
+        gpu_name = torch.cuda.get_device_name(0).upper()
+        cap = torch.cuda.get_device_capability(0)
+        if cap < (7, 0) or any(tok in gpu_name for tok in ("GTX 16", "T500", "T600", "T1000", "T1200", "T2000")):
+            return {}
+    except Exception:
+        pass
     try:
         from ultralytics.cfg import DEFAULT_CFG_DICT
         if "quantize" in DEFAULT_CFG_DICT:
